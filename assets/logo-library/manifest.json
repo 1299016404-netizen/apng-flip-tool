@@ -2,7 +2,7 @@
   "source": "logo.zip extracted PNG images",
   "sourceVersion": "logo-2026-05-09-1523",
   "importedAt": "2026-05-09T15:23:00.000+08:00",
-  "count": 36,
+  "count": 38,
   "items": [
     {
       "name": "雅诗阁-里程抵现.png",
@@ -466,6 +466,36 @@
         "标志",
         "解压图片",
         "酒店品牌"
+      ]
+    },
+    {
+      "name": "主推营销-日常营销.png",
+      "url": "/assets/logo-library/logo-037.png",
+      "tags": [
+        "主推营销-日常营销",
+        "主推营销",
+        "日常营销",
+        "618套餐",
+        "不只5折",
+        "logo",
+        "logo.zip",
+        "标志",
+        "营销"
+      ]
+    },
+    {
+      "name": "主推营销-节日营销.png",
+      "url": "/assets/logo-library/logo-038.png",
+      "tags": [
+        "主推营销-节日营销",
+        "主推营销",
+        "节日营销",
+        "618套餐",
+        "品牌通兑",
+        "logo",
+        "logo.zip",
+        "标志",
+        "营销"
       ]
     }
   ]
