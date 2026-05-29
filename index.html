@@ -5,6 +5,64 @@
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>apng-page-flip-tool</title>
+    <!-- ============================================================ -->
+    <!-- SW kill-switch + tunnel 预热：避免旧 bundle 锁死用户                  -->
+    <!-- 1. 页面加载后立即 fetch tunnel.json（no-store）拿到最新后端 URL    -->
+    <!-- 2. 检测当前 sw 是否为“老版”：若 sw 存在但本地未记住最新 buildId， -->
+    <!--    则 unregister 所有 sw + clear caches + 一次性 reload                  -->
+    <!-- ============================================================ -->
+    <script>
+      (function () {
+        try {
+          var BUILD_ID = '20260529095430-v9y68v'; // 构建时会被 vite define 替换
+          var KEY = 'apng-build-id';
+          var prev = null;
+          try { prev = localStorage.getItem(KEY); } catch (_) {}
+
+          // 预热 tunnel.json：即使 sw 拦截了后面的请求，这里也先拿一次 fresh
+          var preheat = function () {
+            try {
+              var base = location.origin + location.pathname.replace(/\/[^/]*$/, '');
+              fetch(base + '/tunnel.json?_=' + Date.now(), {
+                cache: 'no-store',
+                credentials: 'omit',
+              }).catch(function () {});
+            } catch (_) {}
+          };
+          preheat();
+
+          if (!('serviceWorker' in navigator)) return;
+
+          // 首次访问：记住 buildId。后续访问如果 buildId 变了说明上线了新版，
+          // 但旧 sw 可能还控制着页面，强制 unregister + reload 一次
+          if (prev && prev !== BUILD_ID) {
+            var killed = false;
+            try { killed = sessionStorage.getItem('apng-sw-killed') === '1'; } catch (_) {}
+            if (!killed) {
+              try { sessionStorage.setItem('apng-sw-killed', '1'); } catch (_) {}
+              navigator.serviceWorker.getRegistrations().then(function (regs) {
+                return Promise.all(regs.map(function (r) { return r.unregister(); }));
+              }).then(function () {
+                if (window.caches && caches.keys) {
+                  return caches.keys().then(function (keys) {
+                    return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+                  });
+                }
+              }).then(function () {
+                try { localStorage.setItem(KEY, BUILD_ID); } catch (_) {}
+                location.reload();
+              }).catch(function () {
+                try { localStorage.setItem(KEY, BUILD_ID); } catch (_) {}
+              });
+              return; // 锁住后续加载，等 reload
+            }
+          }
+          try { localStorage.setItem(KEY, BUILD_ID); } catch (_) {}
+        } catch (e) {
+          // 守护脚本任何异常都不能阻断主流程
+        }
+      })();
+    </script>
     <script type="module" crossorigin src="./assets/index-oVKfVX3T.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-BIwq4xb8.css">
   <link rel="manifest" href="./manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="./registerSW.js"></script></head>
